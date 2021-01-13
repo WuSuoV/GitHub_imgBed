@@ -1,0 +1,2 @@
+# GitHub_imgBed
+基于GitHub和Jsdelivr实现的在线图床
