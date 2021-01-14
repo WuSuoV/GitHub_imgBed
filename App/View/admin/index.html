@@ -1,0 +1,47 @@
+{extend name='admin/base'/}
+{block name="main"}
+<div class="col-md-8 text-center">
+    <div class="panel panel-default">
+        <div class="panel-heading">{$title}</div>
+        <div class="panel-body">
+            <img class="thumbnail" src="{:config('admin_img')}" width="100%">
+            <p>欢迎使用由<a href="https://www.yyhy.me/" target="_blank">烟雨寒云</a>开发的Github图床，本程序由QAQ_CORE（可能是最可爱的PHP框架了）强力驱动，图片使用<a href="https://github.com/" target="_blank">Github</a>仓库存储，由<a href="http://www.jsdelivr.com/" target="_blank">JSDelivr</a>提供全球CDN加速服务，温馨提示：本程序仅用来学习交流，作者不对使用该程序所造成的任何后果负责！</p>
+        </div>
+    </div>
+</div>
+<div class="col-md-4 text-center">
+    <div class="panel panel-default">
+        <div class="panel-heading">数据统计</div>
+        <div class="panel-body">
+            <div class="alert" style="background-color: rgba(255, 255, 255, 0.9)">今日上传文件数：<span id="today_uploads">0</span>张</div>
+            <div class="alert" style="background-color: rgba(255, 255, 255, 0.9)">今日上传文件总大小：<span id="today_upload_size">0</span></div>
+            <div class="alert" style="background-color: rgba(255, 255, 255, 0.9)">昨日上传文件数：<span id="yesterday_uploads">0</span>张</div>
+            <div class="alert" style="background-color: rgba(255, 255, 255, 0.9)">昨日上传文件总大小：<span id="yesterday_upload_size">0</span></div>
+            <div class="alert" style="background-color: rgba(255, 255, 255, 0.9)">全部上传文件数：<span id="uploads">0</span>张</div>
+            <div class="alert" style="background-color: rgba(255, 255, 255, 0.9)">全部上传文件总大小：<span id="upload_size">0</span></div>
+        </div>
+    </div>
+</div>
+{/block}
+{block name="js"}
+<script>
+    $(function(){
+        $.ajax({
+            url:'/{:ADMIN_DIR}/get_statistical',
+            type:'post',
+            dataType:'json',
+            success:function(res){
+                $('#today_uploads').html(res.today_uploads);
+                $('#today_upload_size').html(res.today_upload_size);
+                $('#yesterday_uploads').html(res.yesterday_uploads);
+                $('#yesterday_upload_size').html(res.yesterday_upload_size);
+                $('#uploads').html(res.uploads);
+                $('#upload_size').html(res.upload_size);
+            },
+            error: function () {
+                layer.msg('网络错误！');
+            }
+        });
+    });
+</script>
+{/block}

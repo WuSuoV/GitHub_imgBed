@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>API接口 - {:config('sitename')}</title>
+    <meta name="keywords" content="{:config('keywords')}"/>
+    <meta name="description" content="{:config('description')}"/>
+    <link href="//cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="//cdn.jsdelivr.net/npm/simple-line-icons@2.4.1/css/simple-line-icons.css" rel="stylesheet">
+    <link href="/Static/css/img.css?v={:config('version')}" rel="stylesheet">
+</head>
+<body>
+{include file='home/nav'}
+<div class="container" style="padding-top:70px;">
+    <div class="col-xs-12 col-sm-10 col-md-8 col-lg-8 center-block" style="float: none;">
+        <div class="panel panel-default">
+            <div class="panel-heading">APi接口文档</div>
+            <div class="panel-body">
+                <blockquote>说明：使用此接口你可以自行开发系统对接我们的图床系统！</blockquote>
+                <blockquote>拉取API服务器配置</blockquote>
+                请求URL:<code>{$site_url}/api/upload_config</code><br/>
+                请求方式:<code>GET</code><br/>
+                响应格式:<code>JSON</code><br/>
+                响应说明:<pre>code 状态码，为1时正常其余都是错误
+msg 返回信息描述
+allowtype 允许上传的格式
+max_upload 最大上传大小(单位:kb)
+max_uploads 最多上传数量(用作API时基本没有实际意义)</pre>
+                响应示例:<pre>{
+    "code":1,
+    "msg":"拉取成功！",
+    "allowtype":["jpg","png","gif","jpeg","JPG","PNG","GIF","JPEG"],
+    "max_upload":10240,
+    "max_uploads":"10"
+}</pre>
+                <blockquote>上传文件</blockquote>
+                请求URL:<code>{$site_url}/api/upload/(可选:token,在用户中心获取)</code><br/>
+                PS:带上Token即为以你用户身份上传的图片<br/>
+                请求方式:<code>POST</code><br/>
+                请求参数:<code>fileupload(FILE)</code><br/>
+                响应格式:<code>JSON</code><br/>
+                响应说明:<pre>success 状态码，为true时正常其余都是错误
+error 上传失败时返回信息描述
+url 上传成功时返回的图片链接</pre>
+                响应示例:<pre>{
+    "success":true,
+    "url":"{$site_url}/api/img/12"
+}</pre>
+                <blockquote>拉取探索</blockquote>
+                请求URL:<code>{$site_url}/api/output/第几页(留空为第一页)</code><br/>
+                请求方式:<code>GET</code><br/>
+                响应格式:<code>JSON</code><br/>
+                响应说明:<pre>code 状态码，为1时正常其余都是错误
+msg 返回信息描述
+count 当前服务器图片总数
+page 当前分页处于第几页
+pages 共有多少页
+data 数据
+data->url 图片链接
+data->addtime 上传时间戳
+data->ip 上传IP(打码处理)</pre>
+                响应示例:<pre>{
+    "code":1,
+    "data":[
+        {"url":"{$site_url}/api/img/3732","ip":"118.113.***.107","addtime":1591297120},
+        ...
+        {"url":"{$site_url}/api/img/3731","ip":"14.112.***.219","addtime":1591248873}
+    ],
+    "count":3719,
+    "page":"1",
+    "pages":74
+}</pre>
+            </div>
+        </div>
+    </div>
+    <div style="margin-bottom: 80px;"></div>
+</div>
+<footer class="footer">
+    <div class="container">
+        <div class="col-lg-8 pull-left">
+            <p class="text-muted">
+                Copyright © {:date("Y", time())} <span class="glyphicon glyphicon-heart" style="color:red;"></span>
+                {:config('copy')}
+            </p>
+        </div>
+        <div class="col-lg-4 pull-right">
+            <p class="text-muted">
+                {:config('footer')}
+            </p>
+        </div>
+    </div>
+</footer>
+<div class="back-to-top cd-top faa-float animated cd-is-visible" style="top: -900px;"></div>
+<script src="//cdn.jsdelivr.net/npm/jquery@2.1.3/dist/jquery.min.js"></script>
+<script src="//cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"></script>
+<script src="//cdn.jsdelivr.net/npm/bootstrap-fileinput@5.1.2/js/fileinput.min.js"></script>
+<script src="/Static/js/img.js?v={:config('version')}"></script>
+</body>
+</html>

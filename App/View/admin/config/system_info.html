@@ -1,0 +1,46 @@
+{extend name='admin/base'/}
+{block name="main"}
+<div class="col-xs-12 col-sm-10 col-md-8 col-lg-8 center-block" style="float: none;">
+    <div class="panel panel-default">
+        <div class="panel-heading">{$title}</div>
+        <div class="panel-body">
+            <div class="alert" style="background-color: rgba(255, 255, 255, 0.9)">
+                <span class="badge" style="float: right;background: pink">{$app_version}</span>
+                应用版本
+            </div>
+            <div class="alert" style="background-color: rgba(255, 255, 255, 0.9)">
+                <span class="badge" style="float: right;background: pink">QAQ_CORE</span>
+                应用框架
+            </div>
+            <div class="alert" style="background-color: rgba(255, 255, 255, 0.9)">
+                <span class="badge" style="float: right;background: pink">{$core_version}</span>
+                框架版本
+            </div>
+            <div class="alert" style="background-color: rgba(255, 255, 255, 0.9)">
+                <span class="badge" style="float: right;background: pink">{$server_software}</span>
+                服务器软件
+            </div>
+            <div class="alert" style="background-color: rgba(255, 255, 255, 0.9)">
+                <span class="badge" style="float: right;background: pink">{$phpversion}</span>
+                PHP版本
+            </div>
+            <div class="alert" style="background-color: rgba(255, 255, 255, 0.9)">
+                <span class="badge" style="float: right;background: pink">{$mysql_version}</span>
+                Mysql版本
+            </div>
+            <div class="alert" style="background-color: rgba(255, 255, 255, 0.9)">
+                <span class="badge" style="float: right;background: pink">{$post_max_size}</span>
+                POST许可
+            </div>
+            <div class="alert" style="background-color: rgba(255, 255, 255, 0.9)">
+                <span class="badge" style="float: right;background: pink">{$upload_max_filesize}</span>
+                文件上传许可
+            </div>
+            <div class="alert" style="background-color: rgba(255, 255, 255, 0.9)">
+                <span class="badge" style="float: right;background: pink">{$max_execution_time}</span>
+                程序最大运行时间
+            </div>
+        </div>
+    </div>
+</div>
+{/block}

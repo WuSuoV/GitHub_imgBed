@@ -1,0 +1,211 @@
+{extend name='admin/base'/}
+{block name="main"}
+<style>
+    td {
+        vertical-align: middle !important;
+        text-align: center;
+    }
+
+    th {
+        text-align: center;
+    }
+</style>
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 center-block" style="float: none;">
+    <div class="panel panel-default">
+        <div class="panel-heading">{$title}(<span id="count">0</span>)</div>
+        <div class="panel-body">
+            <form class="form-inline" onsubmit="search();return false;">
+                <input class="form-control input-xs" type="text" id="search_text" placeholder="请输入搜索内容...">
+                <input type="hidden" id="text">
+                <button type="button" class="btn btn-info btn-sm" onclick="search();">搜索</button>
+            </form>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th class="col-xs-1">UID</th>
+                        <th class="col-xs-1">头像</th>
+                        <th class="col-xs-2">用户名</th>
+                        <th class="col-xs-2">QQ</th>
+                        <th class="col-xs-1">容量配额</th>
+                        <th class="col-xs-2">注册时间</th>
+                        <th class="col-xs-1">状态</th>
+                        <th class="col-xs-2">操作</th>
+                    </tr>
+                    </thead>
+                    <tbody id="list">
+                    <tr>
+                        <td colspan="8" style="text-align: center;">暂无数据...</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{/block}
+{block name="js"}
+<script>
+    var page = 1;
+    $(function () {
+        load_data(page);
+    });
+
+    function search() {
+        var text = $('#search_text').val();
+        $('#text').val(text);
+        $('#list').html(`
+<tr>
+     <td colspan="8" style="text-align: center;">暂无数据...</td>
+</tr>
+`);
+        page = 1;
+        load_data(1);
+    }
+
+    var is_load = true;
+
+    function load_data(page) {
+        is_load = false;
+        var text = $('#text').val();
+        if (text != '') {
+            var url = '/{:ADMIN_DIR}/get_user_list/' + page + '/' + text;
+        } else {
+            var url = '/{:ADMIN_DIR}/get_user_list/' + page;
+        }
+        $.ajax({
+            'type': 'post',
+            'url': url,
+            'dataType': 'json',
+            'data': '',
+            'success': function (res) {
+                if (res.code == 1) {
+                    var html = '';
+                    for (var i = 0; i < res.data.length; i++) {
+                        html += '<tr>';
+                        html += `<td>` + res.data[i].uid + `</td>`;
+                        html += `<td><img src="` + QQImg(res.data[i].qq) + `" width="40px"></td>`;
+                        html += `<td>` + res.data[i].username + `</td>`;
+                        html += `<td>` + res.data[i].qq + `</td>`;
+                        html += `<td>` + res.data[i].user_pre + `GB</td>`;
+                        html += `<td>` + timeStampTurnTime(res.data[i].addtime) + `</td>`;
+                        if (res.data[i].status == 1) {
+                            var status = '<font color="green">正常</font>';
+                            var status_btn = `<button type="button" class="btn btn-warning btn-xs" onclick="user_status('` + res.data[i].uid + `')">封禁</button>`
+                        } else {
+                            var status = '<font color="red">已封禁</font>';
+                            var status_btn = `<button type="button" class="btn btn-success btn-xs" onclick="user_status('` + res.data[i].uid + `')">解封</button>`
+                        }
+                        html += `<td>` + status + `</td>`;
+                        html += `<td>
+                                    ` + status_btn + `
+                                    <button class="btn btn-info btn-xs" onclick="user_pre('` + res.data[i].uid + `')">调整配额</button>
+                                 </td>`;
+                        html += '</tr>';
+                    }
+                    if (page == 1) {
+                        $('#list').html(html);
+                    } else {
+                        $('#list').append(html);
+                    }
+                    $('#count').text(res.count);
+                    is_load = true;
+                } else {
+                    if (res.code != 0) {
+                        layer.msg(res.msg);
+                    }
+                }
+            },
+            'error': function () {
+                layer.msg('网络错误！');
+            }
+        });
+    }
+
+    function QQImg(qq) {
+        return 'https://q4.qlogo.cn/headimg_dl?dst_uin=' + qq + '&spec=100';
+    }
+
+    function user_status(uid) {
+        layer.confirm('确认操作？', {
+            btn: ['确认', '取消']
+        }, function () {
+            $.ajax({
+                url: '/{:ADMIN_DIR}/user_status/' + uid,
+                type: 'post',
+                dataType: 'json',
+                success: function (res) {
+                    if (res.code != 1) {
+                        layer.msg(res.msg);
+                        return false;
+                    }
+                    layer.alert(res.msg, function () {
+                        window.location.reload();
+                    });
+                },
+                error: function () {
+                    layer.msg('网络错误！');
+                }
+            });
+        });
+    }
+
+    function user_pre(uid) {
+        layer.prompt({title: '输入要调整的配额(单位:GB)', formType: 3}, function (user_pre, index) {
+            layer.close(index);
+            $.ajax({
+                url: '/{:ADMIN_DIR}/user_pre/' + uid,
+                data: {user_pre: user_pre},
+                type: 'post',
+                dataType: 'json',
+                success: function (res) {
+                    if (res.code != 1) {
+                        layer.msg(res.msg);
+                        return false;
+                    }
+                    layer.alert(res.msg, function () {
+                        window.location.reload();
+                    });
+                },
+                error: function () {
+                    layer.msg('网络错误！');
+                }
+            });
+        });
+    }
+
+    //时间戳转时间类型
+    function timeStampTurnTime(timeStamp) {
+        if (timeStamp > 0) {
+            var date = new Date();
+            date.setTime(timeStamp * 1000);
+            var y = date.getFullYear();
+            var m = date.getMonth() + 1;
+            m = m < 10 ? ('0' + m) : m;
+            var d = date.getDate();
+            d = d < 10 ? ('0' + d) : d;
+            var h = date.getHours();
+            h = h < 10 ? ('0' + h) : h;
+            var minute = date.getMinutes();
+            var second = date.getSeconds();
+            minute = minute < 10 ? ('0' + minute) : minute;
+            second = second < 10 ? ('0' + second) : second;
+            return y + '-' + m + '-' + d + ' ' + h + ':' + minute + ':' + second;
+        } else {
+            return "";
+        }
+    }
+
+    $(window).scroll(function () {
+        var totalheight = parseFloat($(window).height()) + parseFloat($(window).scrollTop());
+        var content_height = parseFloat($("#list").height());
+        if (totalheight - content_height >= 100) {
+            if (is_load) {
+                page = page + 1;
+                load_data(page);
+            }
+        }
+    });
+
+</script>
+{/block}

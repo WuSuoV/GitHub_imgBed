@@ -1,0 +1,53 @@
+{extend name='user/base'/}
+{block name="main"}
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-8 center-block" style="float: none;">
+    <div class="panel panel-default">
+        <div class="panel-heading">{$title}</div>
+        <div class="panel-body">
+            <div class="alert alert-danger">
+                修改/重置密码会重置Token，如Token泄露可通过此操作重置！
+            </div>
+            <form id="form">
+                <div class="form-group">
+                    <label>旧密码</label>
+                    <input type="password" class="form-control" name="old_password" placeholder="请输入旧密码">
+                </div>
+                <div class="form-group">
+                    <label>新密码</label>
+                    <input type="password" class="form-control" name="new_password" placeholder="请输入新密码">
+                </div>
+                <div class="form-group">
+                    <label>重复新密码</label>
+                    <input type="password" class="form-control" name="re_password" placeholder="请再输入一次新密码">
+                </div>
+            </form>
+            <button type="submit" class="btn btn-default" onclick="save()">保存</button>
+        </div>
+    </div>
+</div>
+{/block}
+{block name="js"}
+<script>
+    function save() {
+        var cont = $('#form').serialize();
+        $.ajax({
+            url: '/user/do_edit_pass',
+            type: 'POST',
+            data: cont,
+            dataType: 'json',
+            success: function (res) {
+                if (res.code == 1) {
+                    layer.alert(res.msg, function () {
+                        window.location.href = '/user/login';
+                    });
+                } else {
+                    layer.msg(res.msg);
+                }
+            },
+            error: function () {
+                layer.msg('网络错误！');
+            }
+        });
+    }
+</script>
+{/block}

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{$title} - {:config('sitename')}</title>
+    <meta name="keywords" content="{:config('keywords')}"/>
+    <meta name="description" content="{:config('description')}"/>
+    <link href="//cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="//cdn.jsdelivr.net/npm/simple-line-icons@2.4.1/css/simple-line-icons.css" rel="stylesheet">
+    <link href="/Static/css/img.css" rel="stylesheet">
+</head>
+<body>
+{include file='user/sign_nav'}
+<div class="container" style="padding-top:70px;">
+    <div class="col-xs-12 col-sm-10 col-md-8 col-lg-8 center-block" style="float: none;">
+        <div class="panel panel-default">
+            <div class="panel-heading"><span id="loginmsg">使用手机QQ扫码找回密码</span><span id="loginload"></span></div>
+            <div class="panel-body">
+                <div class="list-group">
+                    <center>
+                        <div id="qrimg" style="width: 230px;"></div>
+                        <div id="mobile" style="display:none;">
+                            <br/>
+                            <button type="button" id="mlogin" onclick="mloginurl()" class="btn btn-warning">
+                                跳转QQ快捷登录
+                            </button>
+                            <button type="button" onclick="qrlogin()" class="btn btn-success">
+                                我已完成登录
+                            </button>
+                        </div>
+                    </center>
+                </div>
+            </div>
+            <div class="panel-footer">
+                记起来账号密码了？<a href="/user/login">立即登录</a>
+            </div>
+        </div>
+    </div>
+</div>
+<div style="margin-bottom: 80px;"></div>
+<footer class="footer">
+    <div class="container">
+        <div class="col-lg-8 pull-left">
+            <p class="text-muted">
+                Copyright © {:date("Y", time())} <span class="glyphicon glyphicon-heart" style="color:red;"></span>
+                {:config('copy')}
+            </p>
+        </div>
+        <div class="col-lg-4 pull-right">
+            <p class="text-muted">
+                {:config('footer')}
+            </p>
+        </div>
+    </div>
+</footer>
+<script src="//cdn.jsdelivr.net/npm/jquery@2.1.3/dist/jquery.min.js"></script>
+<script src="//cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"></script>
+<script src="//cdn.jsdelivr.net/npm/bootstrap-fileinput@5.1.2/js/fileinput.min.js"></script>
+<script src="//cdn.jsdelivr.net/gh/sentsin/layer/src/layer.js"></script>
+<script src="/Static/js/img.js"></script>
+<script>
+    var interval1, interval2;
+
+    function setCookie(name, value) {
+        var exp = new Date();
+        exp.setTime(exp.getTime() + 30 * 1000);
+        document.cookie = name + "=" + escape(value) + ";expires=" + exp.toGMTString();
+    }
+
+    function getCookie(name) {
+        var arr, reg = new RegExp("(^| )" + name + "=([^;]*)(;|$)");
+        if (arr = document.cookie.match(reg))
+            return unescape(arr[2]);
+        else
+            return null;
+    }
+
+    function delCookie(name) {
+        var exp = new Date();
+        exp.setTime(exp.getTime() - 1);
+        var cval = getCookie(name);
+        if (cval != null) {
+            document.cookie = name + "=" + cval + ";expires=" + exp.toGMTString();
+        }
+    }
+
+    function getqrpic(force) {
+        force = force || false;
+        cleartime();
+        var qrsig = getCookie('qrsig');
+        var qrimg = getCookie('qrimg');
+        if (qrsig != null && qrimg != null && force == false) {
+            $('#qrimg').attr('qrsig', qrsig);
+            $('#qrimg').html('<img id="qrcodeimg" onclick="getqrpic(true)" src="data:image/png;base64,' + qrimg + '" title="点击刷新">');
+            if (/Android|SymbianOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Windows Phone|Midp/i.test(navigator.userAgent) && navigator.userAgent.indexOf("QQ/") == -1) {
+                $('#mobile').show();
+            }
+            interval1 = setInterval(loginload, 1000);
+            interval2 = setInterval(qrlogin, 3000);
+        } else {
+            var getvcurl = '/user/do_findpwd/getqrpic?r=' + Math.random(1);
+            $.get(getvcurl, function (d) {
+                if (d.saveOK == 0) {
+                    setCookie('qrsig', d.qrsig);
+                    setCookie('qrimg', d.data);
+                    $('#qrimg').attr('qrsig', d.qrsig);
+                    $('#qrimg').html('<img id="qrcodeimg" width="100%" onclick="getqrpic(true)" src="data:image/png;base64,' + d.data + '" title="点击刷新">');
+                    if (/Android|SymbianOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Windows Phone|Midp/i.test(navigator.userAgent) && navigator.userAgent.indexOf("QQ/") == -1) {
+                        $('#mobile').show();
+                    }
+                    interval1 = setInterval(loginload, 1000);
+                    interval2 = setInterval(qrlogin, 3000);
+                } else {
+                    layer.msg(d.msg);
+                }
+            }, 'json');
+        }
+    }
+
+    function qrlogin() {
+        if ($('#login').attr("data-lock") === "true") return;
+        var qrsig = $('#qrimg').attr('qrsig');
+        var url = '/user/do_findpwd/qrlogin?qrsig=' + decodeURIComponent(qrsig) + '&r=' + Math.random(1);
+        $.get(url, function (d) {
+            if (d.code != undefined) {
+                $('#qrimg').hide();
+                $('#submit').hide();
+                $('#login').attr("data-lock", "true");
+                cleartime();
+                if (d.code == 1) {
+                    layer.alert(d.msg, function () {
+                        window.location.href = '/user/login';
+                    });
+                } else {
+                    layer.msg(d.msg);
+                }
+            } else if (d.saveOK == 1) {
+                getqrpic(true);
+                $('#loginmsg').html('请重新扫描二维码');
+            } else if (d.saveOK == 2) {
+                $('#loginmsg').html('使用手机QQ扫码找回密码');
+            } else if (d.saveOK == 3) {
+                $('#loginmsg').html('扫描成功，请在手机上确认授权登录');
+            } else {
+                cleartime();
+                $('#loginmsg').html(d.msg);
+            }
+        }, 'json');
+    }
+
+    function loginload() {
+        if ($('#login').attr("data-lock") === "true") return;
+        var load = document.getElementById('loginload').innerHTML;
+        var len = load.length;
+        if (len > 2) {
+            load = '.';
+        } else {
+            load += '.';
+        }
+        document.getElementById('loginload').innerHTML = load;
+    }
+
+    function cleartime() {
+        clearInterval(interval1);
+        clearInterval(interval2);
+        delCookie('qrsig');
+        delCookie('qrimg');
+    }
+
+    function mloginurl() {
+        var imagew = $('#qrcodeimg').attr('src');
+        imagew = imagew.replace(/data:image\/png;base64,/, "");
+        $('#mlogin').html("正在跳转...");
+        $.post("/user/do_findpwd/qrcode?r=" + Math.random(1), {image: imagew}, function (arr) {
+            if (arr.code == 0) {
+                $('#loginmsg').html('跳转到QQ登录后请返回此页面');
+                window.location.href = 'mqqapi://forward/url?version=1&src_type=web&url_prefix=' + window.btoa(arr.url);
+            } else {
+                alert(arr.msg);
+            }
+            $('#mlogin').html("跳转QQ快捷登录");
+        }, 'json');
+    }
+
+    $(document).ready(function () {
+        getqrpic();
+    });
+</script>
+</body>
+</html>

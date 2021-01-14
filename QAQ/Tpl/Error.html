@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>系统发生错误</title>
+    <style type="text/css">
+        html {
+            padding: 0;
+            margin: 0;
+        }
+
+        body {
+            background-color: skyblue;
+            font-size: 14px;
+            line-height: 1.42857143;
+            color: #333;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            margin: 0;
+            padding: 3px;
+            font-family: inherit;
+            font-weight: 500;
+            line-height: 1.1;
+            color: inherit;
+        }
+
+        .panel {
+            text-align: justify;
+            text-justify: newspaper;
+            word-break: break-all;
+            margin-top: 50px;
+            position: relative;
+            padding-bottom: 15px;
+            margin-right: 8%;
+            margin-left: 8%;
+            border-radius: 4px;
+            box-shadow: 0 2px 15px 0 rgba(156, 156, 156, 0.2);
+            -moz-box-shadow: 0 2px 15px 0 rgba(156, 156, 156, 0.2);
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .heading {
+            background-color: rgba(255, 255, 255, 0.4);
+            padding: 10px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid transparent;
+            border-top-left-radius: 3px;
+            border-top-right-radius: 3px;
+            font-size: 18px;
+            text-align: center;
+        }
+
+        .main {
+            padding-right: 15px;
+            padding-left: 15px;
+        }
+
+        blockquote {
+            padding: 10px;
+            margin: 0 0 10px;
+            border-left: 5px solid rgba(255, 255, 255, 0.3);
+            background-color: rgba(255, 255, 255, 0.25);
+            font-size: 17.5px;
+            text-align: justify;
+            text-justify: newspaper;
+            word-break: break-all;
+        }
+
+        h5 {
+            color: red;
+        }
+
+        div {
+            display: block;
+        }
+
+        .code {
+            display: block;
+            padding: 9.5px;
+            margin: 0 0 10px;
+            font-size: 13px;
+            font-weight: bolder;
+            line-height: 1.42857143;
+            word-break: break-all;
+            word-wrap: break-word;
+            background-color: rgba(255, 255, 255, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+            overflow: auto;
+            white-space: nowrap;
+        }
+
+        .alert {
+            background-color: rgba(255, 255, 255, 0.25);
+            padding: 15px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            text-align: justify;
+            text-justify: newspaper;
+            word-break: break-all;
+        }
+
+        .error {
+            background-color: rgba(227, 19, 28, 0.7);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+<div class="panel">
+    <div class="heading">
+        QAQ_CORE - 系统发生错误
+    </div>
+    {if is_array($error)}
+    <div class="main">
+        <blockquote>
+            <h5>
+                <b>Error in {$error.file} line {$error.line}</b>
+            </h5>
+            <h5>
+                {$error.level}:{$error.message}
+            </h5>
+        </blockquote>
+        <div class="code">
+            {foreach $error.code as $k => $v}
+            {$v.line}.<span {if $v.error}class="error" {/if}>{$v.code|raw}</span><br/>
+            {/foreach}
+        </div>
+        <div class="alert">
+            <b>Call Stack:</b><br>
+            {foreach $error.trace as $k => $v}
+            {if (isset($v.file) && isset($v.class) && isset($v.type) && isset($v.line))}
+            {$k+1}.&nbsp;at {$v.class}{$v.type}{$v.function}&nbsp;in&nbsp;{$v.file}&nbsp;on&nbsp;line&nbsp;{$v.line}<br>
+            {elseif (isset($v.file) && isset($v.line))}
+            {$k+1}.&nbsp;at&nbsp;{$v.file}&nbsp;{$v.function}()&nbsp;on&nbsp;line&nbsp;{$v.line}<br>
+            {else}
+            {$k+1}.&nbsp;at&nbsp;{$v.function}()<br>
+            {/if}
+            {/foreach}
+        </div>
+    </div>
+    {else}
+    <div class="main">
+        <center>
+            <h5>{$error}</h5>
+        </center>
+    </div>
+    {/if}
+</div>
+</body>
+</html>

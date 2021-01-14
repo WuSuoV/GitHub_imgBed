@@ -1,0 +1,140 @@
+{extend name='admin/base'/}
+{block name="main"}
+<style>
+    td {
+        vertical-align: middle !important;
+        text-align: center;
+    }
+
+    th {
+        text-align: center;
+    }
+</style>
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 center-block" style="float: none;">
+    <div class="panel panel-default">
+        <div class="panel-heading">{$title}(<span id="count">0</span>)</div>
+        <div class="panel-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th class="col-xs-1">ID</th>
+                        <th class="col-xs-2">IP</th>
+                        <th class="col-xs-2">添加时间</th>
+                        <th class="col-xs-3">操作</th>
+                    </tr>
+                    </thead>
+                    <tbody id="list">
+                    <tr>
+                        <td colspan="4" style="text-align: center;">暂无数据...</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{/block}
+{block name="js"}
+<script>
+    var page = 1;
+    $(function () {
+        load_data(page);
+    });
+
+    var is_load = true;
+
+    function load_data(page) {
+        is_load = false;
+        $.ajax({
+            'type': 'post',
+            'url': '/{:ADMIN_DIR}/get_black_list/' + page,
+            'dataType': 'json',
+            'data': '',
+            'success': function (res) {
+                if (res.code == 1) {
+                    var html = '';
+                    for (var i = 0; i < res.data.length; i++) {
+                        html += '<tr>';
+                        html += `<td>` + res.data[i].id + `</td>`;
+                        html += `<td>` + res.data[i].ip + `</td>`;
+                        html += `<td>` + timeStampTurnTime(res.data[i].addtime) + `</td>`;
+                        html += `<td>
+                                    <button type="button" class="btn btn-danger btn-xs" onclick="del('` + res.data[i].id + `')">取消拉黑</button>
+                                 </td>`;
+                        html += '</tr>';
+                    }
+                    if (page == 1) {
+                        $('#list').html(html);
+                    } else {
+                        $('#list').append(html);
+                    }
+                    $('#count').text(res.count);
+                    is_load = true;
+                } else {
+                    if (res.code != 0) {
+                        layer.msg(res.msg);
+                    }
+                }
+            },
+            'error': function () {
+                layer.msg('网络错误！');
+            }
+        });
+    }
+
+    function del(id) {
+        $.ajax({
+            url: '/{:ADMIN_DIR}/del_black/' + id,
+            type: 'post',
+            dataType: 'json',
+            success: function (res) {
+                if (res.code != 1) {
+                    layer.msg(res.msg);
+                    return false;
+                }
+                layer.alert(res.msg, function () {
+                    window.location.reload();
+                });
+            },
+            error: function () {
+                layer.msg('网络错误！');
+            }
+        });
+    }
+
+    //时间戳转时间类型
+    function timeStampTurnTime(timeStamp) {
+        if (timeStamp > 0) {
+            var date = new Date();
+            date.setTime(timeStamp * 1000);
+            var y = date.getFullYear();
+            var m = date.getMonth() + 1;
+            m = m < 10 ? ('0' + m) : m;
+            var d = date.getDate();
+            d = d < 10 ? ('0' + d) : d;
+            var h = date.getHours();
+            h = h < 10 ? ('0' + h) : h;
+            var minute = date.getMinutes();
+            var second = date.getSeconds();
+            minute = minute < 10 ? ('0' + minute) : minute;
+            second = second < 10 ? ('0' + second) : second;
+            return y + '-' + m + '-' + d + ' ' + h + ':' + minute + ':' + second;
+        } else {
+            return "";
+        }
+    }
+
+    $(window).scroll(function () {
+        var totalheight = parseFloat($(window).height()) + parseFloat($(window).scrollTop());
+        var content_height = parseFloat($("#list").height());
+        if (totalheight - content_height >= 100) {
+            if (is_load) {
+                page = page + 1;
+                load_data(page);
+            }
+        }
+    });
+
+</script>
+{/block}

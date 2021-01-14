@@ -1,0 +1,64 @@
+{extend name='admin/base'/}
+{block name="main"}
+<div class="col-xs-12 col-sm-10 col-md-8 col-lg-8 center-block" style="float: none;">
+    <div class="panel panel-default">
+        <div class="panel-heading">{$title}</div>
+        <div class="panel-body">
+            <form id="form">
+                <div class="form-group">
+                    <label>最大上传文件(单位:字节)</label>
+                    <input type="text" class="form-control" name="max_upload" value="{:config('max_upload')}" placeholder="请输入最大上传文件">
+                </div>
+                <div class="form-group">
+                    <label>最多一次上传文件数</label>
+                    <input type="text" class="form-control" name="max_uploads" value="{:config('max_uploads')}" placeholder="请输入最多一次上传文件数">
+                </div>
+                <div class="form-group">
+                    <label>允许上传图片类型(多个用英文逗号隔开)</label>
+                    <input type="text" class="form-control" name="allowtype" value="{:config('allowtype')}" placeholder="请输入允许上传图片类型">
+                </div>
+                <div class="form-group">
+                    <label>上传频率限制(多少张/小时)</label>
+                    <input type="text" class="form-control" name="one_hour_uploads" value="{:config('one_hour_uploads')}" placeholder="请输入上传频率限制">
+                </div>
+                <div class="form-group">
+                    <label>API接口开关</label>
+                    <select name="api_sw" class="form-control">
+                        <option value="0" {if config('api_sw')==0}selected{/if}>关闭</option>
+                        <option value="1" {if config('api_sw')==1}selected{/if}>开启</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>游客上传</label>
+                    <select name="visit_upload" class="form-control">
+                        <option value="0" {if config('visit_upload')==0}selected{/if}>关闭</option>
+                        <option value="1" {if config('visit_upload')==1}selected{/if}>开启</option>
+                    </select>
+                </div>
+            </form>
+            <button type="submit" class="btn btn-default" onclick="save()">保存</button>
+        </div>
+    </div>
+</div>
+{/block}
+{block name="js"}
+<script>
+    function save() {
+        var cont = $('#form').serialize();
+        $.ajax({
+            url: '/{:ADMIN_DIR}/do_config',
+            type: 'POST',
+            data: cont,
+            dataType: 'json',
+            success: function (res) {
+                layer.alert(res.msg, function () {
+                    window.location.reload();
+                });
+            },
+            error: function () {
+                layer.msg('网络错误！');
+            }
+        });
+    }
+</script>
+{/block}

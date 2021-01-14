@@ -1,0 +1,92 @@
+{extend name='admin/base'/}
+{block name="main"}
+<div class="col-xs-12 col-sm-10 col-md-8 col-lg-8 center-block" style="float: none;">
+    <div class="panel panel-default">
+        <div class="panel-heading">{$title}</div>
+        <div class="panel-body">
+            <div class="alert alert-danger" role="alert">
+                开启鉴黄后，高于所允许的最高等级的图片将直接被删除！！！<br/>
+                由于算法问题，鉴黄不一定可以拦截全部的违规图片！！！
+            </div>
+            <form id="form">
+                <div class="form-group">
+                    <label>鉴黄开关</label>
+                    <select id="sw" name="sex_verify_sw" class="form-control">
+                        <option value="0" {if config('sex_verify_sw')==0}selected{/if}>关闭</option>
+                        <option value="1" {if config('sex_verify_sw')==1}selected{/if}>开启</option>
+                    </select>
+                </div>
+                <div id="content">
+                    <div class="form-group">
+                        <label>鉴黄秘钥 <a href="https://moderatecontent.com/" target="_blank">注册鉴黄</a></label>
+                        <input type="text" class="form-control" name="sex_verify_token" value="{:config('sex_verify_token')}" placeholder="请输入鉴黄秘钥">
+                    </div>
+                    <div class="form-group">
+                        <label>最高允许图片等级</label>
+                        <select name="sex_verify_level" class="form-control">
+                            <option value="1" {if config('sex_verify_level')==1}selected{/if}>所有人</option>
+                            <option value="2" {if config('sex_verify_level')==2}selected{/if}>青少年</option>
+                            <option value="3" {if config('sex_verify_level')==3}selected{/if}>限制级</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>鉴黄后是否拉黑IP</label>
+                        <select name="sex_verify_black_ip" class="form-control">
+                            <option value="0" {if config('sex_verify_black_ip')==0}selected{/if}>否</option>
+                            <option value="1" {if config('sex_verify_black_ip')==1}selected{/if}>是</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>鉴黄后操作</label>
+                        <select name="sex_verify_config" class="form-control">
+                            <option value="0" {if config('sex_verify_config')==0}selected{/if}>删除</option>
+                            <option value="1" {if config('sex_verify_config')==1}selected{/if}>提醒图片违规</option>
+                        </select>
+                    </div>
+                </div>
+            </form>
+            <button type="submit" class="btn btn-default" onclick="save()">保存</button>
+        </div>
+    </div>
+</div>
+{/block}
+{block name="js"}
+<script>
+    $(function () {
+        var sw = $('#sw').val();
+        if (sw == 1) {
+            $('#content').show();
+        } else {
+            $('#content').hide();
+        }
+    });
+
+    $('#sw').change(function () {
+        var sw = $('#sw').val();
+        if (sw == 1) {
+            $('#content').show();
+        } else {
+            $('#content').hide();
+        }
+    });
+
+    function save() {
+        var cont = $('#form').serialize();
+        $.ajax({
+            url: '/{:ADMIN_DIR}/do_config',
+            type: 'POST',
+            data: cont,
+            dataType: 'json',
+            success: function (res) {
+                layer.alert(res.msg, function () {
+                    window.location.reload();
+                });
+            },
+            error: function () {
+                layer.msg('网络错误！');
+            }
+        });
+    }
+</script>
+{/block}

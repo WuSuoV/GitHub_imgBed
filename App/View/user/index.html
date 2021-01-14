@@ -1,0 +1,82 @@
+{extend name='user/base'/}
+{block name="main"}
+<div class="col-md-8 text-center">
+    <div class="panel panel-default">
+        <div class="panel-heading">{$title}</div>
+        <div class="panel-body">
+            <div class="alert alert-info">
+                <img class="img-circle" style="border: 2px solid #23beff; margin-left:3px; margin-right:3px;"
+                     src="{:QqImg($uinfo.qq)}" width="60px" height="60px">
+                <br>
+                欢迎使用，用户：<b>{$uinfo.username}</b>！
+            </div>
+            <div class="row" style="text-align: center">
+                <div class="col-lg-4">
+                    <div class="alert" style="background-color: rgba(255, 255, 255, 0.9)">
+                        <h1><span class="icon-energy"></span></h1>
+                        存储空间总量：<b>{$uinfo.user_pre}</b>GB
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="alert" style="background-color: rgba(255, 255, 255, 0.9)">
+                        <h1><span class="icon-picture"></span></h1>
+                        图片总数：<b>{$imgs}</b>张
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="alert" style="background-color: rgba(255, 255, 255, 0.9)">
+                        <h1><span class="icon-cloud-upload"></span></h1>
+                        已使用空间：<b>{$used_pre}</b>
+                    </div>
+                </div>
+            </div>
+            <div class="alert" style="background-color: rgba(255, 255, 255, 0.9)">
+                {:config('user_gg')}
+            </div>
+        </div>
+    </div>
+</div>
+<div class="col-md-4 text-center">
+    <div class="panel panel-default">
+        <div class="panel-heading">全站数据统计</div>
+        <div class="panel-body">
+            <div class="alert" style="background-color: rgba(255, 255, 255, 0.9)">今日上传文件数：<span
+                    id="today_uploads">0</span>张
+            </div>
+            <div class="alert" style="background-color: rgba(255, 255, 255, 0.9)">今日上传文件总大小：<span
+                    id="today_upload_size">0</span></div>
+            <div class="alert" style="background-color: rgba(255, 255, 255, 0.9)">昨日上传文件数：<span
+                    id="yesterday_uploads">0</span>张
+            </div>
+            <div class="alert" style="background-color: rgba(255, 255, 255, 0.9)">昨日上传文件总大小：<span
+                    id="yesterday_upload_size">0</span></div>
+            <div class="alert" style="background-color: rgba(255, 255, 255, 0.9)">全部上传文件数：<span id="uploads">0</span>张
+            </div>
+            <div class="alert" style="background-color: rgba(255, 255, 255, 0.9)">全部上传文件总大小：<span
+                    id="upload_size">0</span></div>
+        </div>
+    </div>
+</div>
+{/block}
+{block name="js"}
+<script>
+    $(function () {
+        $.ajax({
+            url: '/user/get_statistical',
+            type: 'post',
+            dataType: 'json',
+            success: function (res) {
+                $('#today_uploads').html(res.today_uploads);
+                $('#today_upload_size').html(res.today_upload_size);
+                $('#yesterday_uploads').html(res.yesterday_uploads);
+                $('#yesterday_upload_size').html(res.yesterday_upload_size);
+                $('#uploads').html(res.uploads);
+                $('#upload_size').html(res.upload_size);
+            },
+            error: function () {
+                layer.msg('网络错误！');
+            }
+        });
+    });
+</script>
+{/block}

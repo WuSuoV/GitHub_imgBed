@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{$title} - {:config('sitename')}</title>
+    <meta name="keywords" content="{:config('keywords')}"/>
+    <meta name="description" content="{:config('description')}"/>
+    <link href="//cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="//cdn.jsdelivr.net/gh/fancyapps/fancybox/dist/jquery.fancybox.min.css" rel="stylesheet">
+    <link href="//cdn.jsdelivr.net/npm/simple-line-icons@2.4.1/css/simple-line-icons.css" rel="stylesheet">
+    <link href="/Static/css/img.css?v={:config('version')}" rel="stylesheet">
+</head>
+<body>
+<nav class="navbar navbar-fixed-top navbar-default">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
+                    aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">导航按钮</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="./">{:config('sitename')}</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="/{:ADMIN_DIR}"><span class="icon-home"></span> 后台首页</a></li>
+                <li><a href="/{:ADMIN_DIR}/img_list"><span class="icon-picture"></span> 图片列表</a></li>
+                <li><a href="/{:ADMIN_DIR}/user"><span class="icon-people"></span> 用户列表</a></li>
+                <li><a href="/{:ADMIN_DIR}/black_list"><span class="icon-user-unfollow"></span> 黑名单管理</a></li>
+                <li><a href="/{:ADMIN_DIR}/config"><span class="icon-settings"></span> 系统设置</a></li>
+                <li><a href="javascript:logout();"><span class="icon-power"></span> 退出登录</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<div class="container" style="padding-top:70px;">
+    {block name="main"}{/block}
+    <div style="margin-bottom: 80px;"></div>
+</div>
+<footer class="footer">
+    <div class="container">
+        <div class="col-lg-8 pull-left">
+            <p class="text-muted">
+                Copyright © {:date("Y", time())} <span class="glyphicon glyphicon-heart" style="color:red;"></span>
+                {:config('copy')}
+            </p>
+        </div>
+        <div class="col-lg-4 pull-right">
+            <p class="text-muted">
+                {:config('footer')}
+            </p>
+        </div>
+    </div>
+</footer>
+<div class="back-to-top cd-top faa-float animated cd-is-visible" style="top: -900px;"></div>
+<script src="//cdn.jsdelivr.net/npm/jquery@2.1.3/dist/jquery.min.js"></script>
+<script src="//cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"></script>
+<script src="//cdn.jsdelivr.net/gh/sentsin/layer/src/layer.js"></script>
+<script src="//cdn.jsdelivr.net/npm/jquery-lazyload@1.9.7/jquery.lazyload.js"></script>
+<script src="//cdn.jsdelivr.net/npm/bootstrap-fileinput@5.1.2/js/fileinput.min.js"></script>
+<script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox/dist/jquery.fancybox.min.js"></script>
+<script src="//cdn.jsdelivr.net/npm/clipboard@1.7.1/dist/clipboard.min.js"></script>
+<script src="/Static/js/img.js?v={:config('version')}"></script>
+<script>
+    var clipboard = new Clipboard('#copy-btn');
+    clipboard.on('success', function(e) {
+        layer.msg('复制成功');
+    });
+    clipboard.on('error', function(e) {
+        layer.msg('复制失败，请长按链接后手动复制');
+    });
+
+    function logout() {
+        $.ajax({
+            url: '/{:ADMIN_DIR}/logout',
+            type: 'post',
+            dataType: 'json',
+            success: function (res) {
+                layer.alert(res.msg, function () {
+                    window.location.href = '/{:ADMIN_DIR}/login';
+                });
+            },
+            error: function () {
+                layer.msg('网络错误！');
+            }
+        });
+    }
+</script>
+{block name="js"}{/block}
+</body>
+</html>

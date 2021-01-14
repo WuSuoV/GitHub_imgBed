@@ -1,0 +1,167 @@
+{extend name='user/base'/}
+{block name="main"}
+<style>
+    td {
+        vertical-align: middle !important;
+        text-align: center;
+    }
+
+    th {
+        text-align: center;
+    }
+</style>
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 center-block" style="float: none;">
+    <div class="panel panel-default">
+        <div class="panel-heading">{$title}(<span id="count">0</span>)</div>
+        <div class="panel-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th class="col-xs-1">ID</th>
+                        <th class="col-xs-2">图片</th>
+                        <th class="col-xs-2">图片信息</th>
+                        <th class="col-xs-2">上传IP</th>
+                        <th class="col-xs-2">上传时间</th>
+                        <th class="col-xs-1">鉴黄状态</th>
+                        <th class="col-xs-2">操作</th>
+                    </tr>
+                    </thead>
+                    <tbody id="list">
+                    <tr>
+                        <td colspan="7" style="text-align: center;">暂无数据...</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{/block}
+{block name="js"}
+<script>
+    var page = 1;
+    $(function () {
+        load_data(page);
+    });
+
+    var is_load = true;
+
+    function load_data(page) {
+        is_load = false;
+        $.ajax({
+            'type': 'post',
+            'url': '/user/get_img_list/' + page,
+            'dataType': 'json',
+            'data': '',
+            'success': function (res) {
+                if (res.code == 1) {
+                    var html = '';
+                    for (var i = 0; i < res.data.length; i++) {
+                        html += '<tr>';
+                        html += `<td>` + res.data[i].img_id + `</td>`;
+                        html += `<td><a data-fancybox="gallery" href="` + res.data[i].url + `" data-caption="<b>上传时间：` + timeStampTurnTime(res.data[i].addtime) + `</b><br/>上传者IP：` + res.data[i].ip + `"><img style="height:50px;" class="lazy" data-original="` + res.data[i].url + `"></a></td>`;
+                        html += `<td>宽:` + res.data[i].width + `,高:` + res.data[i].height + `<br/>MIME:` + res.data[i].mime + `<br/>大小:` + bytesToSize(res.data[i].size) + `</td>`;
+                        html += `<td>` + res.data[i].ip + `</td>`;
+                        html += `<td>` + timeStampTurnTime(res.data[i].addtime) + `</td>`;
+                        if (res.data[i].sex_verify == 1) {
+                            var sex_verify = '<font color="green">已鉴黄</font>';
+                        } else {
+                            var sex_verify = '<font color="red">未鉴黄</font>';
+                        }
+                        html += `<td>` + sex_verify + `</td>`;
+                        html += `<td>
+                                    <button type="button" class="btn btn-danger btn-xs" onclick="del('` + res.data[i].img_id + `')">删除</button>
+                                 </td>`;
+                        html += '</tr>';
+                    }
+                    if (page == 1) {
+                        $('#list').html(html);
+                    } else {
+                        $('#list').append(html);
+                    }
+                    $('#count').text(res.count);
+                    $(".lazy").lazyload({
+                        placeholder: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAPSURBVBhXY/gPBVDG//8Aj4IP8dFqTzkAAAAASUVORK5CYII="
+                    });
+                    is_load = true;
+                } else {
+                    if (res.code != 0) {
+                        layer.msg(res.msg);
+                    }
+                }
+            },
+            'error': function () {
+                layer.msg('网络错误！');
+            }
+        });
+    }
+
+    function bytesToSize(bytes) {
+        if (bytes == 0) return '0 B';
+        if (bytes === 0) return '0 B';
+        var k = 1024;
+        sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+        i = Math.floor(Math.log(bytes) / Math.log(k));
+        return (bytes / Math.pow(k, i)).toFixed(2) + ' ' + sizes[i];
+    }
+
+    function del(id) {
+        layer.confirm('确认操作？', {
+            btn: ['确认', '取消']
+        }, function () {
+            $.ajax({
+                url: '/user/del_img/' + id,
+                type: 'post',
+                dataType: 'json',
+                success: function (res) {
+                    if (res.code != 1) {
+                        layer.msg(res.msg);
+                        return false;
+                    }
+                    layer.alert(res.msg, function () {
+                        window.location.reload();
+                    });
+                },
+                error: function () {
+                    layer.msg('网络错误！');
+                }
+            });
+        });
+    }
+
+    //时间戳转时间类型
+    function timeStampTurnTime(timeStamp) {
+        if (timeStamp > 0) {
+            var date = new Date();
+            date.setTime(timeStamp * 1000);
+            var y = date.getFullYear();
+            var m = date.getMonth() + 1;
+            m = m < 10 ? ('0' + m) : m;
+            var d = date.getDate();
+            d = d < 10 ? ('0' + d) : d;
+            var h = date.getHours();
+            h = h < 10 ? ('0' + h) : h;
+            var minute = date.getMinutes();
+            var second = date.getSeconds();
+            minute = minute < 10 ? ('0' + minute) : minute;
+            second = second < 10 ? ('0' + second) : second;
+            return y + '-' + m + '-' + d + ' ' + h + ':' + minute + ':' + second;
+        } else {
+            return "";
+        }
+    }
+
+    $(window).scroll(function () {
+        var totalheight = parseFloat($(window).height()) + parseFloat($(window).scrollTop());
+        var content_height = parseFloat($("#list").height());
+        if (totalheight - content_height >= 100) {
+            if (is_load) {
+                page = page + 1;
+                load_data(page);
+            }
+        }
+    });
+
+</script>
+{/block}

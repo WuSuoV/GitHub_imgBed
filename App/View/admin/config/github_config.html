@@ -1,0 +1,109 @@
+{extend name='admin/base'/}
+{block name="main"}
+<div class="col-xs-12 col-sm-10 col-md-8 col-lg-8 center-block" style="float: none;">
+    <div class="panel panel-default">
+        <div class="panel-heading">{$title}</div>
+        <div class="panel-body">
+            <form id="form">
+                <div class="alert alert-info" role="alert" id="ms">API延迟检测中...</div>
+                <div class="form-group">
+                    <label>API选取</label>
+                    <select name="github_api" class="form-control">
+                        <option value="1" {if config(
+                        'github_api')==1}selected{/if}>[Github官方]api.github.com</option>
+                        <option value="2" {if config(
+                        'github_api')==2}selected{/if}>[烟雨腾讯云香港镜像源]api.github.kkpp.cc</option>
+                        <option value="3" {if config(
+                        'github_api')==3}selected{/if}>[烟雨阿里云香港镜像源]v2.kkpp.cc</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>用户名</label>
+                    <input type="text" class="form-control" name="USER" value="{:config('USER')}" placeholder="请输入用户名">
+                </div>
+                <div class="form-group">
+                    <label>邮箱</label>
+                    <input type="text" class="form-control" name="MAIL" value="{:config('MAIL')}" placeholder="请输入邮箱">
+                </div>
+                <div class="form-group">
+                    <label>仓库名</label>
+                    <input type="text" class="form-control" name="REPO" value="{:config('REPO')}" placeholder="请输入仓库名">
+                </div>
+                <div class="form-group">
+                    <label>密钥
+                        <button class="btn btn-info btn-xs" type="button" onclick="git_token()">获取</button>
+                        </button></label>
+                    <input type="text" class="form-control" name="TOKEN" value="{:config('TOKEN')}" placeholder="请输入密钥">
+                </div>
+            </form>
+            <button type="submit" class="btn btn-default" onclick="save()">保存</button>
+            <button type="submit" id="check" class="btn btn-success" onclick="check()">检查配置</button>
+        </div>
+    </div>
+</div>
+{/block}
+{block name="js"}
+<script>
+    function git_token() {
+        layer.alert('即将跳转，请手动生成一个有写权限的token!<br/>PS：(repo:Full control of private repositories 和write:packages前打勾)!', function () {
+            open('https://github.com/settings/tokens');
+        });
+    }
+
+    function check() {
+        $('#check').attr('disabled', true);
+        $('#check').html('检查配置中...');
+        $.ajax({
+            url: '/{:ADMIN_DIR}/do_github_check',
+            async: 'false',
+            type: 'POST',
+            dataType: 'json',
+            success: function (res) {
+                $('#check').html(res.msg);
+                $('#check').attr('disabled', false);
+            },
+            error: function () {
+                layer.msg('网络错误！');
+                $('#check').attr('disabled', false);
+            }
+        });
+    }
+
+    function save() {
+        var cont = $('#form').serialize();
+        $.ajax({
+            url: '/{:ADMIN_DIR}/do_config',
+            type: 'POST',
+            data: cont,
+            dataType: 'json',
+            success: function (res) {
+                layer.alert(res.msg, function () {
+                    window.location.reload();
+                });
+            },
+            error: function () {
+                layer.msg('网络错误！');
+            }
+        });
+    }
+
+    $(function () {
+        do_api_check();
+    });
+
+    function do_api_check() {
+        $('#ms').html('API延迟检测中...');
+        $.ajax({
+            url: '/{:ADMIN_DIR}/do_api_check',
+            type: 'POST',
+            dataType: 'json',
+            success: function (res) {
+                $('#ms').html(res.data);
+            },
+            error: function () {
+                layer.msg('网络错误！');
+            }
+        });
+    }
+</script>
+{/block}

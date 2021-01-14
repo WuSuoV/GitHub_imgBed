@@ -1,0 +1,32 @@
+<nav class="navbar navbar-fixed-top navbar-default">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">导航按钮</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">{:config('sitename')}</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="/"><span class="icon-home"></span> 首页</a></li>
+                {if config('album')}
+                <li><a href="/album"><span class="icon-picture"></span> 探索</a></li>
+                {/if}
+                {if config('api_sw')}
+                <li><a href="/api"><span class="icon-settings"></span> API</a></li>
+                {/if}
+                {foreach $nav as $v}
+                <li>{$v|raw}</li>
+                {/foreach}
+                {if USER_IS_LOGIN}
+                <li><a href="/user"><span class="icon-user"></span> 用户中心</a></li>
+                {else}
+                <li><a href="/user/login"><span class="icon-login"></span> 登录</a></li>
+                {/if}
+            </ul>
+        </div>
+    </div>
+</nav>

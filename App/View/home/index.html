@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{:config('sitename')} - {:config('title')}</title>
+    <meta name="keywords" content="{:config('keywords')}"/>
+    <meta name="description" content="{:config('description')}"/>
+    <link href="//cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="//cdn.jsdelivr.net/npm/bootstrap-fileinput@5.1.2/css/fileinput.min.css" rel="stylesheet">
+    <link href="//cdn.jsdelivr.net/npm/simple-line-icons@2.4.1/css/simple-line-icons.css" rel="stylesheet">
+    <link href="/Static/css/img.css?v={:config('version')}" rel="stylesheet">
+</head>
+<body>
+{include file='home/nav'}
+<div class="container" style="padding-top:70px;">
+    <div class="header">
+        <div id="logo">
+            {:config('sitename')}
+        </div>
+        高速外链，全球CDN加速，支持最大{:round(config('max_upload') / 1024 / 1024,
+        0)}MB/文件，最多{:config('max_uploads')}张图片同时上传，本站已累计托管{$count}张图片！
+        {if config('gg')}
+        <br/>
+        <b>
+            <font color="red">{:config('gg')}</font>
+        </b>
+        {/if}
+    </div>
+    <form enctype="multipart/form-data">
+        <input type="file" id="file-Portrait" name="fileupload" accept="image/*" multiple>
+    </form>
+    <div id="showurl" style="display: none;padding-top: 10px;">
+        <ul id="navTab" class="nav nav-tabs" role="tablist">
+            <li class="nav-item"><a class="nav-link" id="urlcodePanel-tab" href="#urlcodePanel" data-toggle="tab">Image
+                URL</a></li>
+            <li class="nav-item"><a class="nav-link" id="bbcodePanel-tab" href="#bbcodePanel"
+                                    data-toggle="tab">BBCode</a></li>
+            <li class="nav-item"><a class="nav-link" id="htmlcodePanel-tab" href="#htmlcodePanel"
+                                    data-toggle="tab">HTML</a></li>
+            <li class="nav-item"><a class="nav-link" id="markdownPanel-tab" href="#markdownPanel" data-toggle="tab">Markdown</a>
+            </li>
+        </ul>
+        <div id="navTabContent" class="tab-content" style="border:none;">
+            <div class="tab-pane fade" id="urlcodePanel" role="tabpanel" aria-labelledby="urlcodePanel-tab">
+                <pre style="margin-top: 5px;"><code id="urlcode"></code></pre>
+            </div>
+            <div class="tab-pane fade" id="bbcodePanel" role="tabpanel" aria-labelledby="bbcodePanel-tab">
+                <pre style="margin-top: 5px;"><code id="bbcode"></code></pre>
+            </div>
+            <div class="tab-pane fade" id="htmlcodePanel" role="tabpanel" aria-labelledby="htmlcodePanel-tab">
+                <pre style="margin-top: 5px;"><code id="htmlcode"></code></pre>
+            </div>
+            <div class="tab-pane fade" id="markdownPanel" role="tabpanel" aria-labelledby="markdownPanel-tab">
+                <pre style="margin-top: 5px;"><code id="markdown"></code></pre>
+            </div>
+        </div>
+    </div>
+    <div style="margin-bottom: 80px;"></div>
+</div>
+<footer class="footer">
+    <div class="container">
+        <div class="col-lg-8 pull-left">
+            <p class="text-muted">
+                Copyright © {:date("Y", time())} <span class="glyphicon glyphicon-heart" style="color:red;"></span>
+                {:config('copy')}
+            </p>
+        </div>
+        <div class="col-lg-4 pull-right">
+            <p class="text-muted">
+                {:config('footer')}
+            </p>
+        </div>
+    </div>
+</footer>
+<div class="back-to-top cd-top faa-float animated cd-is-visible" style="top: -900px;"></div>
+<script src="//cdn.jsdelivr.net/npm/jquery@2.1.3/dist/jquery.min.js"></script>
+<script src="//cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"></script>
+<script src="//cdn.jsdelivr.net/npm/bootstrap-fileinput@5.1.2/js/fileinput.min.js"></script>
+<script src="//cdn.jsdelivr.net/npm/bootstrap-fileinput@5.1.2/js/locales/zh.js"></script>
+<script src="//cdn.jsdelivr.net/npm/clipboard@1.7.1/dist/clipboard.min.js"></script>
+<script src="//cdn.jsdelivr.net/gh/sentsin/layer/src/layer.js"></script>
+<script src="/Static/js/img.js?v={:config('version')}"></script>
+{if !ADMIN_IS_LOGIN && !USER_IS_LOGIN && config('visit_upload')==0}
+<script>
+    layer.alert('已关闭游客上传，请登录后使用！', function () {
+        window.location.href = '/user/login';
+    });
+</script>
+{/if}
+</body>
+</html>

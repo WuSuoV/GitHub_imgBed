@@ -1,0 +1,18 @@
+{extend name='user/base'/}
+{block name="main"}
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-8 center-block" style="float: none;">
+    <div class="panel panel-default">
+        <div class="panel-heading">{$title}</div>
+        <div class="panel-body">
+            <div class="alert alert-danger">
+                请千万不要泄露您的Token！<br/>
+                修改/重置密码会重置Token，如Token泄露可通过此操作重置！
+            </div>
+            您的Token:
+            <font color="red">
+                <b>{$token}</b>
+            </font>
+        </div>
+    </div>
+</div>
+{/block}

@@ -1,0 +1,42 @@
+{extend name='admin/base'/}
+{block name="main"}
+<div class="col-xs-12 col-sm-10 col-md-8 col-lg-8 center-block" style="float: none;">
+    <div class="panel panel-default">
+        <div class="panel-heading">{$title}</div>
+        <div class="panel-body">
+            <form id="form">
+                <div class="form-group">
+                    <label>用户名</label>
+                    <input type="text" class="form-control" name="username" value="{:config('username')}" placeholder="请输入用户名">
+                </div>
+                <div class="form-group">
+                    <label>密码</label>
+                    <input type="password" class="form-control" name="password" value="{:config('password')}" placeholder="请输入密码">
+                </div>
+            </form>
+            <button type="submit" class="btn btn-default" onclick="save()">保存</button>
+        </div>
+    </div>
+</div>
+{/block}
+{block name="js"}
+<script>
+    function save() {
+        var cont = $('#form').serialize();
+        $.ajax({
+            url: '/{:ADMIN_DIR}/do_config',
+            type: 'POST',
+            data: cont,
+            dataType: 'json',
+            success: function (res) {
+                layer.alert(res.msg, function () {
+                    window.location.reload();
+                });
+            },
+            error: function () {
+                layer.msg('网络错误！');
+            }
+        });
+    }
+</script>
+{/block}

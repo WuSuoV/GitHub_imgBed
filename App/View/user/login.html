@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{$title} - {:config('sitename')}</title>
+    <meta name="keywords" content="{:config('keywords')}"/>
+    <meta name="description" content="{:config('description')}"/>
+    <link href="//cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="//cdn.jsdelivr.net/npm/simple-line-icons@2.4.1/css/simple-line-icons.css" rel="stylesheet">
+    <link href="/Static/css/img.css" rel="stylesheet">
+</head>
+<body>
+{include file='user/sign_nav'}
+<div class="container" style="padding-top:70px;">
+    <div class="col-xs-12 col-sm-10 col-md-8 col-lg-8 center-block" style="float: none;">
+        <div class="panel panel-default">
+            <div class="panel-heading">{$title}</div>
+            <div class="panel-body">
+                <form id="form">
+                    <div class="form-group">
+                        <label>用户名</label>
+                        <input type="text" class="form-control" name="username" placeholder="请输入用户名">
+                    </div>
+                    <div class="form-group">
+                        <label>密码</label>
+                        <input type="password" class="form-control" name="password" placeholder="请输入密码">
+                    </div>
+                </form>
+                <button type="submit" class="btn btn-default" id="login" disabled>登录</button>
+            </div>
+            <div class="panel-footer">
+                忘记密码？<a href="/user/findpwd">找回密码</a> | 没有账号？<a href="/user/reg">注册一个</a>
+            </div>
+        </div>
+    </div>
+</div>
+<div style="margin-bottom: 80px;"></div>
+<footer class="footer">
+    <div class="container">
+        <div class="col-lg-8 pull-left">
+            <p class="text-muted">
+                Copyright © {:date("Y", time())} <span class="glyphicon glyphicon-heart" style="color:red;"></span>
+                {:config('copy')}
+            </p>
+        </div>
+        <div class="col-lg-4 pull-right">
+            <p class="text-muted">
+                {:config('footer')}
+            </p>
+        </div>
+    </div>
+</footer>
+<script src="//cdn.jsdelivr.net/npm/jquery@2.1.3/dist/jquery.min.js"></script>
+<script src="//cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"></script>
+<script src="//cdn.jsdelivr.net/npm/bootstrap-fileinput@5.1.2/js/fileinput.min.js"></script>
+<script src="//cdn.jsdelivr.net/gh/sentsin/layer/src/layer.js"></script>
+<script src="//static.geetest.com/static/tools/gt.js"></script>
+<script src="/Static/js/img.js"></script>
+<script>
+    var enter = true;
+    var handlerEmbed = function (captchaObj) {
+        captchaObj.onSuccess(function () {
+            var result = captchaObj.getValidate();
+            var username = $("input[name='username']").val();
+            var password = $("input[name='password']").val();
+            if (!result) {
+                layer.alert('请先完成滑动验证！', {icon: 5});
+                return false;
+            }
+            layer.msg('登录中...', {
+                icon: 16
+                , shade: 0.01
+                , time: false
+            });
+            $.ajax({
+                url: "/user/do_login",
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    username: username,
+                    password: password,
+                    geetest_challenge: result.geetest_challenge,
+                    geetest_validate: result.geetest_validate,
+                    geetest_seccode: result.geetest_seccode
+                },
+                success: function (data) {
+                    layer.closeAll();
+                    if (data.code == 1) {
+                        enter = false;
+                        captchaObj.reset();
+                        layer.alert(data.msg, function () {
+                            window.location.href = "/user";
+                        });
+                    } else {
+                        captchaObj.reset();
+                        layer.msg(data.msg);
+                    }
+                },
+                timeout: 10000,
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    layer.closeAll();
+                    if (textStatus == "timeout") {
+                        layer.msg('请求超时');
+                    } else {
+                        layer.msg('网络错误');
+                    }
+                }
+            });
+        });
+        $(document).keyup(function (event) {
+            if (event.keyCode == 13) {
+                if (enter) {
+                    $("#login").click();
+                } else {
+                    window.location.href = "/user";
+                }
+            }
+        });
+        $("#login").click(function () {
+            var username = $("input[name='username']").val();
+            var password = $("input[name='password']").val();
+            if (username == '') {
+                layer.msg('用户名不可为空！');
+                $("input[name='username']").focus();
+                return false;
+            }
+            if (password == '') {
+                layer.msg('密码不可为空！');
+                $("input[name='password']").focus();
+                return false;
+            }
+            captchaObj.verify();
+        });
+    };
+
+    $.ajax({
+        url: "/geetest?t=" + (new Date()).getTime(),
+        type: "POST",
+        dataType: "json",
+        success: function (data) {
+            initGeetest({
+                gt: data.gt,
+                challenge: data.challenge,
+                new_captcha: data.new_captcha,
+                product: "bind",
+                offline: !data.success,
+                width: '100%'
+            }, handlerEmbed);
+            $('#login').attr('disabled', false);
+        },
+        timeout: 10000,
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+            if (textStatus == "timeout") {
+                layer.msg('请求超时');
+            } else {
+                layer.msg('网络错误');
+            }
+        }
+    });
+</script>
+</body>
+</html>

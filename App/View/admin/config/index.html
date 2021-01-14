@@ -1,0 +1,134 @@
+{extend name='admin/base'/}
+{block name="main"}
+<div class="col-xs-12 col-sm-10 col-md-8 col-lg-8 center-block" style="float: none;">
+    <div class="panel panel-default">
+        <div class="panel-heading">{$title}</div>
+        <div class="panel-body">
+            <div class="row" style="text-align: center">
+                <div class="col-lg-4" onclick="window.location.href='/{:ADMIN_DIR}/site_config';">
+                    <div class="alert" style="background-color: rgba(255, 255, 255, 0.9)">
+                        <h1><span class="icon-energy"></span></h1>
+                        网站配置
+                    </div>
+                </div>
+                <div class="col-lg-4" onclick="window.location.href='/{:ADMIN_DIR}/admin_config';">
+                    <div class="alert" style="background-color: rgba(255, 255, 255, 0.9)">
+                        <h1><span class="icon-user"></span></h1>
+                        管理员配置
+                    </div>
+                </div>
+                <div class="col-lg-4" onclick="window.location.href='/{:ADMIN_DIR}/upload_config';">
+                    <div class="alert" style="background-color: rgba(255, 255, 255, 0.9)">
+                        <h1><span class="icon-cloud-upload"></span></h1>
+                        文件上传配置
+                    </div>
+                </div>
+                <div class="col-lg-4" onclick="window.location.href='/{:ADMIN_DIR}/github_config';">
+                    <div class="alert" style="background-color: rgba(255, 255, 255, 0.9)">
+                        <h1><span class="icon-social-github"></span></h1>
+                        Github配置
+                    </div>
+                </div>
+                <div class="col-lg-4" onclick="window.location.href='/{:ADMIN_DIR}/sex_config';">
+                    <div class="alert" style="background-color: rgba(255, 255, 255, 0.9)">
+                        <h1><span class="icon-emotsmile"></span></h1>
+                        鉴黄配置
+                    </div>
+                </div>
+                <div class="col-lg-4" onclick="window.location.href='/{:ADMIN_DIR}/user_config';">
+                    <div class="alert" style="background-color: rgba(255, 255, 255, 0.9)">
+                        <h1><span class="icon-people"></span></h1>
+                        用户配置
+                    </div>
+                </div>
+                <div class="col-lg-4" onclick="window.location.href='/{:ADMIN_DIR}/system_info';">
+                    <div class="alert" style="background-color: rgba(255, 255, 255, 0.9)">
+                        <h1><span class="icon-info"></span></h1>
+                        系统信息
+                    </div>
+                </div>
+                <div class="col-lg-4" onclick="clear_cache()">
+                    <div class="alert" style="background-color: rgba(255, 255, 255, 0.9)">
+                        <h1><span class="icon-refresh"></span></h1>
+                        清理缓存
+                    </div>
+                </div>
+                <div class="col-lg-4" onclick="check_update()">
+                    <div class="alert" style="background-color: rgba(255, 255, 255, 0.9)">
+                        <h1><span class="icon-reload"></span></h1>
+                        检查更新
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{/block}
+{block name="js"}
+<script>
+    function check_update()
+    {
+        layer.msg('检查更新中...', {
+            icon: 16
+            , shade: 0.01
+            , time: false
+        });
+        $.ajax({
+            url: '/{:ADMIN_DIR}/update/check',
+            type: 'post',
+            dataType: 'json',
+            success: function (res) {
+                layer.closeAll();
+                if(res.code!=1){
+                    layer.msg(res.msg);
+                }else{
+                    layer.alert(res.msg,function(){
+                        layer.msg('更新中...', {
+                            icon: 16
+                            , shade: 0.01
+                            , time: false
+                        });
+                        $.ajax({
+                            url: '/{:ADMIN_DIR}/update/do',
+                            type: 'post',
+                            dataType: 'json',
+                            success: function (res) {
+                                layer.closeAll();
+                                if(res.code!=1){
+                                    layer.msg(res.msg);
+                                }else{
+                                    layer.alert(res.msg,function(){
+                                        window.location.reload();
+                                    });
+                                }
+                            },
+                            error: function () {
+                                layer.closeAll();
+                                layer.msg('网络错误！');
+                            }
+                        });
+                    });
+                }
+            },
+            error: function () {
+                layer.closeAll();
+                layer.msg('网络错误！');
+            }
+        });
+    }
+
+    function clear_cache() {
+        $.ajax({
+            url: '/{:ADMIN_DIR}/clear_cache',
+            type: 'post',
+            dataType: 'json',
+            success: function (res) {
+                layer.msg(res.msg);
+            },
+            error: function () {
+                layer.msg('网络错误！');
+            }
+        });
+    }
+</script>
+{/block}

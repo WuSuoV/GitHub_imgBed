@@ -1,0 +1,85 @@
+{extend name='admin/base'/}
+{block name="main"}
+<div class="col-xs-12 col-sm-10 col-md-8 col-lg-8 center-block" style="float: none;">
+    <div class="panel panel-default">
+        <div class="panel-heading">{$title}</div>
+        <div class="panel-body">
+            <form id="form">
+                <div class="form-group">
+                    <label>网站名称</label>
+                    <input type="text" class="form-control" name="sitename" value="{:config('sitename')}" placeholder="请输入网站名称">
+                </div>
+                <div class="form-group">
+                    <label>网站副标题</label>
+                    <input type="text" class="form-control" name="title" value="{:config('title')}" placeholder="请输入网站副标题">
+                </div>
+                <div class="form-group">
+                    <label>SEO关键字</label>
+                    <input type="text" class="form-control" name="keywords" value="{:config('keywords')}" placeholder="请输入SEO关键字">
+                </div>
+                <div class="form-group">
+                    <label>SEO描述</label>
+                    <input type="text" class="form-control" name="description" value="{:config('description')}" placeholder="请输入SEO描述">
+                </div>
+                <div class="form-group">
+                    <label>底部版权</label>
+                    <input type="text" class="form-control" name="copy" value="{:config('copy')}" placeholder="请输入底部版权">
+                </div>
+                <div class="form-group">
+                    <label>右下角Footer内容</label>
+                    <input type="text" class="form-control" name="footer" value="{:config('footer')}" placeholder="请输入右下角Footer内容">
+                </div>
+                <div class="form-group">
+                    <label>后台路径</label>
+                    <input class="form-control" name="ADMIN_DIR" value="{:config('ADMIN_DIR')}" placeholder="请输入后台路径">
+                </div>
+                <div class="form-group">
+                    <label>后台首页图片链接</label>
+                    <input class="form-control" name="admin_img" value="{:config('admin_img')}" placeholder="请输入后台首页图片链接">
+                </div>
+                <div class="form-group">
+                    <label>用户中心公告</label>
+                    <textarea class="form-control" name="user_gg" cols="30" rows="10" placeholder="请输入用户中心公告">{:config('user_gg')}</textarea>
+                </div>
+                <div class="form-group">
+                    <label>首页公告(默认会加粗加红)</label>
+                    <textarea class="form-control" name="gg" cols="30" rows="10" placeholder="请输入前台公告">{:config('gg')}</textarea>
+                </div>
+                <div class="form-group">
+                    <label>探索开关</label>
+                    <select name="album" class="form-control">
+                        <option value="0" {if config('album')==0}selected{/if}>关闭</option>
+                        <option value="1" {if config('album')==1}selected{/if}>开启</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>前台菜单自定义（多个用|隔开）<a href="https://simplelineicons.github.io/" target="_blank">获取图标</a></label>
+                    <textarea class="form-control" name="nav" cols="30" rows="10" placeholder="请输入前台菜单自定义">{:config('nav')}</textarea>
+                </div>
+            </form>
+            <button type="submit" class="btn btn-default" onclick="save()">保存</button>
+        </div>
+    </div>
+</div>
+{/block}
+{block name="js"}
+<script>
+    function save() {
+        var cont = $('#form').serialize();
+        $.ajax({
+            url: '/{:ADMIN_DIR}/do_config',
+            type: 'POST',
+            data: cont,
+            dataType: 'json',
+            success: function (res) {
+                layer.alert(res.msg, function () {
+                    window.location.reload();
+                });
+            },
+            error: function () {
+                layer.msg('网络错误！');
+            }
+        });
+    }
+</script>
+{/block}
